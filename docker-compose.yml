@@ -1,0 +1,74 @@
+version: '3.8'
+services:
+  minio:
+    image: minio/minio:RELEASE.2023-06-29T05-12-28Z
+    entrypoint:
+      - sh
+      - -euc
+      - |
+        mkdir -p /data/loki-data && \
+        minio server /data
+    environment:
+      - MINIO_ROOT_USER=admin
+      - MINIO_ROOT_PASSWORD=supersecret
+      - MINIO_UPDATE=off
+      - MINIO_CONSOLE_ADDRESS=:9001
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    volumes:
+      - ./volumes/minio:/data
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:9000/minio/health/live" ]
+      interval: 15s
+      timeout: 20s
+      retries: 5
+
+  loki:
+    image: grafana/loki:2.8.2
+    ports:
+      - "3100:3100"
+    command: -config.file=/etc/loki/config.yml
+    volumes:
+      - ./configs/loki/config.yml:/etc/loki/config.yml
+    depends_on:
+      - minio
+
+  promtail:
+    image: grafana/promtail:2.8.2
+    command: -config.file=/etc/promtail/config.yml
+    volumes:
+      # custom config will read logs from the containers of this project
+      - ./configs/promtail/config.yml:/etc/promtail/config.yml
+      # to read container labels and logs
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+    depends_on:
+      - loki
+
+  # default credentials: admin/admin
+  grafana:
+    image: grafana/grafana:9.2.2
+    ports:
+      - "3000:3000"
+    volumes:
+      # directory must be created first, with uid:gid 472:472
+#      - ./volumes/grafana:/var/lib/grafana
+      # automatically configure the loki datasource
+      - ./configs/grafana/provisioning/:/etc/grafana/provisioning/
+
+  comment-service:
+    build:
+      context: comment-service/
+    ports:
+      - "8002:8002"
+    labels:
+      logging: "promtail"
+
+  post-service:
+    build:
+      context: post-service/
+    ports:
+      - "8001:8001"
+    labels:
+      logging: "promtail"
