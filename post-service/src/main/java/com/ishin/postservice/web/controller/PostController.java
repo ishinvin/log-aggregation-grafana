@@ -3,7 +3,6 @@ package com.ishin.postservice.web.controller;
 import com.ishin.postservice.domain.Post;
 import com.ishin.postservice.domain.PostWithComments;
 import com.ishin.postservice.service.PostService;
-import com.ishin.postservice.web.exception.ResourceNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -29,7 +28,7 @@ public class PostController {
 
     @GetMapping(path = "/{id}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<PostWithComments> getPost(@PathVariable Long id) {
-        PostWithComments postWithComments = service.getPost(id).orElseThrow(ResourceNotFoundException::new);
+        PostWithComments postWithComments = service.getPost(id).orElseThrow(() -> new RuntimeException("Not found"));
         return ResponseEntity.ok(postWithComments);
     }
 }
