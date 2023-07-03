@@ -1,6 +1,9 @@
 spring:
   main:
     banner-mode: "off"
+  zipkin:
+    base-url: http://tempo:9411
+    enabled: true
 
 comment-service:
   base-url: http://comment-service:8002

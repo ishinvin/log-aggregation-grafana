@@ -1,3 +1,6 @@
 spring:
   main:
     banner-mode: "off"
+  zipkin:
+    base-url: http://tempo:9411
+    enabled: true

@@ -1,5 +1,6 @@
 version: '3.8'
 services:
+
   minio:
     image: minio/minio:RELEASE.2023-06-29T05-12-28Z
     entrypoint:
@@ -7,14 +8,16 @@ services:
       - -euc
       - |
         mkdir -p /data/loki && \
+        mkdir -p /data/tempo && \
         minio server /data
     environment:
       - MINIO_ROOT_USER=admin
       - MINIO_ROOT_PASSWORD=supersecret
       - MINIO_UPDATE=off
       - MINIO_CONSOLE_ADDRESS=:9001
+    expose:
+      - 9000
     ports:
-      - "9000:9000"
       - "9001:9001"
     volumes:
       - minio-data:/data
@@ -47,6 +50,33 @@ services:
     depends_on:
       - loki
 
+  tempo:
+    image: grafana/tempo:2.1.1
+    command: [ "-config.file=/etc/config.yml" ]
+    volumes:
+      - ./configs/tempo/config.yml:/etc/config.yml
+      - tempo-data:/tmp/tempo
+    ports:
+      - "3200:3200"   # tempo
+      - "9411:9411"  # zipkin http
+    depends_on:
+      - minio
+      - prometheus
+
+  prometheus:
+    image: prom/prometheus:v2.44.0
+    command:
+      - --config.file=/etc/prometheus.yml
+      - --web.enable-remote-write-receiver
+      - --enable-feature=exemplar-storage
+      - --storage.tsdb.path=/prometheus
+      - --storage.tsdb.retention.time=2d
+    volumes:
+      - ./configs/prometheus/config.yml:/etc/prometheus.yml
+      - prometheus-data:/prometheus
+    ports:
+      - "9090:9090"
+
   # default credentials: admin/admin
   grafana:
     image: grafana/grafana:9.2.2
@@ -77,3 +107,5 @@ services:
 volumes:
   minio-data:
   loki-data:
+  tempo-data:
+  prometheus-data:
