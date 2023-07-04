@@ -33,6 +33,9 @@ The purpose of this project to experiment the log aggregation and distributed tr
 1. Visit Grafana UI: [http://localhost:3000](http://localhost:3000/)
 
 
+   - `Username`: admin
+   - `Password`: admin
+
    ![Grafana Login](images/login.png)
 
 2. Invoke API for testing: [http://localhost:8001/posts/1](http://localhost:8001/posts/1)
