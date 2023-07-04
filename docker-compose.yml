@@ -83,10 +83,9 @@ services:
     ports:
       - "3000:3000"
     volumes:
-      # directory must be created first, with uid:gid 472:472
-#      - ./volumes/grafana:/var/lib/grafana
       # automatically configure the loki datasource
-      - ./configs/grafana/provisioning/:/etc/grafana/provisioning/
+      - ./configs/grafana/provisioning/datasources/datasources.yml:/etc/grafana/provisioning/datasources/datasources.yml
+      - grafana-data:/var/lib/grafana
 
   comment-service:
     build:
@@ -109,3 +108,4 @@ volumes:
   loki-data:
   tempo-data:
   prometheus-data:
+  grafana-data:
