@@ -32,19 +32,20 @@ The purpose of this project to experiment the log aggregation and distributed tr
 
 1. Visit Grafana UI: [http://localhost:3000](http://localhost:3000/)
 
-   [![Grafana Login][Grafana Login]](images/login.png)
 
+   ![Grafana Login](images/login.png)
 
 2. Invoke API for testing: [http://localhost:8001/posts/1](http://localhost:8001/posts/1)
 
 3. Check Log data in `Loki`: [http://localhost:3000/explore](http://localhost:3000/explore)
 
 
-   [![Loki][Loki]](images/loki.png)
+   ![Loki](images/loki.png)
 
 4. Check Tracing in `Tempo`: [http://localhost:3000/explore](http://localhost:3000/explore)
 
-   [![Tempo][Tempo]](images/tempo.png)
+
+   ![Tempo](images/tempo.png)
 
 
 <!-- CONTACT -->
